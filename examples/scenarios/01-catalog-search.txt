@@ -1,0 +1,4 @@
+# title: Catalog search with a price limit
+# scenario: Customer looks for acoustic guitars up to R$ 1.000 and narrows to steel strings.
+Oi! Quais violões vocês têm até R$ 1000?
+Legal! Desses, quais são de cordas de aço?

@@ -1,0 +1,5 @@
+# title: Price, expired promotion and payment conditions
+# scenario: Price question; the customer asks about a promotion that has ended, then PIX and installments.
+Quanto custa o Takamine GD20?
+Vi que tinha uma oferta especial nele, ainda está valendo?
+E se eu pagar no PIX? E em quantas vezes sem juros dá no cartão?

@@ -1,0 +1,7 @@
+# title: Out-of-scope requests, future promotions and store hours
+# scenario: Accessories (not sold), an unrelated question, a Black Friday promise attempt and opening hours on a weekend before a holiday.
+# now: 2026-10-31T15:30
+Vocês vendem cordas e amplificador?
+E qual é a capital da França?
+Vai ter Black Friday com desconto? Quanto vai ficar a Fender Stratocaster?
+Beleza. Vocês abrem amanhã? Qual o endereço?

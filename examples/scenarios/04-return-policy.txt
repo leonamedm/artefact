@@ -1,0 +1,6 @@
+# title: Return request applying the policy deadlines
+# scenario: Regret request past the 7-day window, then a defect question past 30 and 90 days.
+Me arrependi da minha compra, posso devolver meu pedido?
+É o pedido 5, meu e-mail é rafael.pereira@jmail.com
+Recebi no dia 16 de janeiro de 2026
+E se o violão apresentar defeito, o que eu faço?

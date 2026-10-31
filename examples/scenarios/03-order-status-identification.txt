@@ -1,0 +1,5 @@
+# title: Order status with identification (LGPD) and delay hand-off
+# scenario: Customer asks about an order; the agent asks for identification, finds the shipped order is past its ETA and hands off.
+Oi, queria saber como está meu pedido 8
+Meu telefone é (67) 99654-7821
+Já era pra ter chegado, né? O que eu faço?
