@@ -1,0 +1,25 @@
+# Secrets
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.egg-info/
+
+# Generated (rebuilt by tools/ scripts)
+var/
+dist/
+
+# Personal Claude Code files
+.claude/settings.local.json
+CLAUDE.local.md
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

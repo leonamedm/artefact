@@ -1,0 +1,37 @@
+[project]
+name = "emporio-agent"
+version = "0.1.0"
+description = "Customer-service agent prototype for Empório da Música (Artefact AI Engineer challenge)"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "holidays>=0.107",
+    "openai>=3.42.0",
+    "pypdf>=6.21.4",
+    "python-dotenv>=1.2.4",
+    "tzdata>=2026.6",
+]
+
+[project.scripts]
+emporio-chat = "emporio_agent.interfaces.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.11.32,<0.12.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pytest>=9.2.0",
+    "ruff>=0.17.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM"]
