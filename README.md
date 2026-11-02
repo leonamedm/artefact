@@ -93,7 +93,7 @@ src/emporio_agent/
   agent/              system prompt, tool schemas, tool-calling loop, LLM adapter
   interfaces/cli.py   terminal chat (thin)
   app.py              composition root
-tests/                86 tests on the real data, incl. every data trap
+tests/                96 tests on the real data, incl. every data trap
 examples/             recorded conversations (+ scenarios/ that generate them)
 docs/                 architecture.md · data-findings.md · adr/
 ```
@@ -173,7 +173,7 @@ applying the 7/30/90-day rules, and out-of-scope requests plus opening hours.
 
 ## Verification
 
-- `uv run pytest`: **86 tests pass** offline — rules on the real data (pricing, installments,
+- `uv run pytest`: **96 tests pass** offline — rules on the real data (pricing, installments,
   shipping, returns, hours/holidays, identification), ingestion and source immutability, tool
   validation/formatting, and the agent loop with a scripted fake model (including echoing
   provider-specific tool-call fields).
@@ -183,15 +183,18 @@ applying the 7/30/90-day rules, and out-of-scope requests plus opening hours.
 - Provider registry, fallback order and the admin panel's `.env` editing are covered by
   `tests/test_providers.py` with fake models (no network); `emporio-admin add/set/list` were
   also run directly against a real `.env`.
-- End-to-end with a real model on the owner's machine (Apple M1, 8 GB RAM, Ollama 0.40):
-  - **Ollama `qwen3:8b` failed:** the 5 GB model did not fit the free memory (30/37 layers on
-    the GPU, no swap); Ollama aborted with `timed out waiting for llama-server to start`, and
-    the agent's former fixed 60 s timeout cancelled each load attempt. Not used.
-  - **Ollama `qwen3:4b`** loads fully on the GPU (3.2 GB, ~16 tokens/s, ~40 s for the first
-    tool call with thinking on). It is configured as the provider (timeout 300 s), but the
-    example conversations have **not yet been re-recorded with it**; the transcripts'
-    "Model served" line shows which model produced each one.
-  - Gemini and Groq are supported by configuration but were not exercised.
+- End-to-end with a real model (2026-11-02): the five transcripts in `examples/` were recorded
+  with **Gemini `gemini-3.5-flash-lite`** (free tier) on a clean commit, and every price,
+  promotion, order status and deadline was checked against the data. Recording surfaced real
+  model mistakes that were fixed at the cause, not by editing answers: an invented receipt date
+  (tool schema + prompt), a purchase date read as dispatch date (field renamed), and a defect
+  follow-up answered from generic policy text (the return check now also returns the order's
+  defect/warranty status, computed in code).
+- Ollama on the owner's Mac (M1, 8 GB, Ollama 0.40): `qwen3:8b` did not fit in free memory
+  (Ollama aborted with `timed out waiting for llama-server to start`); `qwen3:4b` ran fully on
+  the GPU but made grounding mistakes (placeholder name, wrong warranty answer, invented Black
+  Friday date), so it was not used for the examples. Groq was not exercised.
+- Free-tier Gemini was flaky during recording (occasional 403/503); failed turns were retried.
 
 ---
 
