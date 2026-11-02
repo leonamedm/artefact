@@ -119,3 +119,25 @@ def test_handoff_is_recorded(tools, conversations):
     result = run(tools, "handoff_to_human", reason="complaint", summary="Instrumento com defeito")
     assert result["registered"] is True
     assert result["response_time"] == "Retorno em até 24 horas úteis."
+
+
+def test_return_check_also_reports_defect_status_for_the_same_order(tools):
+    # Order 5 (customer 5): bought 05/01/2026; customer says it arrived 16/01/2026.
+    result = run(
+        tools,
+        "check_return_eligibility",
+        order_id=5,
+        email="rafael.pereira@jmail.com",
+        reason="regret",
+        received_date="2026-01-16",
+    )
+    assert result["outcome"] == "expired"
+    assert result["deadline"] == "23/01/2026"
+    # 30-day store exchange and 90-day legal warranty are both over -> manufacturer.
+    assert result["if_defect"]["outcome"] == "manufacturer_warranty"
+    assert result["if_defect"]["deadline"] == "16/04/2026"
+    assert result["if_defect"]["days_left"] < 0
+
+
+def test_return_check_rejects_missing_contact(tools):
+    assert "error" in run(tools, "check_return_eligibility", order_id=5, reason="regret")

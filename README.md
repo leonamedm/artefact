@@ -93,7 +93,7 @@ src/emporio_agent/
   agent/              system prompt, tool schemas, tool-calling loop, LLM adapter
   interfaces/cli.py   terminal chat (thin)
   app.py              composition root
-tests/                84 tests on the real data, incl. every data trap
+tests/                86 tests on the real data, incl. every data trap
 examples/             recorded conversations (+ scenarios/ that generate them)
 docs/                 architecture.md · data-findings.md · adr/
 ```
@@ -173,7 +173,7 @@ applying the 7/30/90-day rules, and out-of-scope requests plus opening hours.
 
 ## Verification
 
-- `uv run pytest`: **84 tests pass** offline — rules on the real data (pricing, installments,
+- `uv run pytest`: **86 tests pass** offline — rules on the real data (pricing, installments,
   shipping, returns, hours/holidays, identification), ingestion and source immutability, tool
   validation/formatting, and the agent loop with a scripted fake model (including echoing
   provider-specific tool-call fields).

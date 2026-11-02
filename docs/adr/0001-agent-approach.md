@@ -30,7 +30,7 @@ products returned without price, expired promotions labelled as ended, a tool-ro
 a hand-off fallback, and tool errors returned to the model instead of crashing the turn.
 
 ## Consequences
-+ Rules are testable without an LLM (84 tests run offline in seconds).
++ Rules are testable without an LLM (86 tests run offline in seconds).
 + The model cannot leak data it cannot query, nor promise discounts the services don't return.
 + Few dependencies; the whole loop is readable in one file.
 − New capabilities need a new tool, not just a prompt change.

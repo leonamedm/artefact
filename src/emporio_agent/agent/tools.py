@@ -405,9 +405,10 @@ def build_tools(ctx: ToolContext) -> ToolRegistry:
                 received = date.fromisoformat(args["received_date"])
             except ValueError as exc:
                 raise ToolError("received_date must be YYYY-MM-DD") from exc
-        try:
-            assessment = assess_return(
-                ReturnReason(args["reason"]),
+
+        def assess(reason: ReturnReason):
+            return assess_return(
+                reason,
                 order_status=order.status,
                 purchase_date=order.order_date,
                 received_date=received,
@@ -416,9 +417,18 @@ def build_tools(ctx: ToolContext) -> ToolRegistry:
                 online_purchase=True,
                 possibly_non_eligible=args.get("possibly_non_eligible", False),
             )
+
+        try:
+            assessment = assess(ReturnReason(args["reason"]))
+            # Customers often follow a return question with "and if it has a defect?". Returning
+            # this order's defect/warranty status up front keeps that answer computed by code
+            # instead of the model generalizing from the policy text.
+            defect = (
+                assess(ReturnReason.DEFECT) if assessment.reason != ReturnReason.DEFECT else None
+            )
         except ValueError as exc:
             raise ToolError(str(exc)) from exc
-        return {
+        result: dict[str, Any] = {
             "order_id": order.order_id,
             "order_status": ORDER_STATUS_LABEL[order.status],
             "purchase_date": _date(order.order_date),
@@ -434,6 +444,14 @@ def build_tools(ctx: ToolContext) -> ToolRegistry:
                 "starts the process."
             ),
         }
+        if defect is not None:
+            result["if_defect"] = {
+                "outcome": defect.outcome.value,
+                "explanation": defect.explanation,
+                "deadline": _date(defect.deadline),
+                "days_left": defect.days_left,
+            }
+        return result
 
     def get_policy(args: dict[str, Any]) -> dict[str, Any]:
         section = ctx.policies.get(args["topic"])
