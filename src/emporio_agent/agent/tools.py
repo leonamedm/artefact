@@ -201,7 +201,8 @@ def _installments_view(options) -> dict[str, Any]:
 def _order_view(order: Order, today: date) -> dict[str, Any]:
     view: dict[str, Any] = {
         "order_id": order.order_id,
-        "order_date": _date(order.order_date),
+        # Named explicitly: the data has no dispatch date, only the purchase date.
+        "order_placed_on": _date(order.order_date),
         "status": ORDER_STATUS_LABEL[order.status],
         "items": [f"{i.quantity}x {i.product_name}" for i in order.items],
         "total": _money(order.total),
@@ -581,7 +582,11 @@ def build_tools(ctx: ToolContext) -> ToolRegistry:
                     "properties": {
                         **identity,
                         "reason": {"type": "string", "enum": [r.value for r in ReturnReason]},
-                        "received_date": {"type": "string", "description": "YYYY-MM-DD"},
+                        "received_date": {
+                            "type": "string",
+                            "description": "YYYY-MM-DD. Only a date the customer explicitly "
+                            "stated in this conversation; never assume or fill it in.",
+                        },
                         "possibly_non_eligible": {
                             "type": "boolean",
                             "description": "True if the customer mentions customization/setup, a "

@@ -30,7 +30,7 @@ CONVERSATIONS_DB = "conversations.db"
 
 # Google Gemini's OpenAI-compatible endpoint: free tier, no credit card (see ADR-0002).
 DEFAULT_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/"
-DEFAULT_LLM_MODEL = "gemini-flash-latest"
+DEFAULT_LLM_MODEL = "gemini-3.5-flash-lite"
 
 
 # Seconds per model request. Hosted APIs answer in seconds; small local models on modest

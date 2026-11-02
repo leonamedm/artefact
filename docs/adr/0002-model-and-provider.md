@@ -1,5 +1,5 @@
 # ADR-0002: Model and provider — free tier via an OpenAI-compatible API
-- Status: Accepted
+- Status: Accepted (amended 2026-11-02: default model)
 - Date: 2026-10-31
 - Decided by: Emanoel (requirement: no paid API) / Claude Code (provider choice)
 
@@ -17,7 +17,7 @@ Portuguese, and evaluators able to run it in minutes. Free options in late 2026:
 ## Decision
 Talk to the model through the OpenAI Chat Completions protocol with the official `openai`
 SDK, configured only by environment variables (`LLM_BASE_URL`, `LLM_MODEL`, `LLM_API_KEY`).
-Default: Gemini free tier with the `gemini-flash-latest` alias. Groq and Ollama are documented
+Default: Gemini free tier with the pinned `gemini-3.5-flash-lite` model. Groq and Ollama are documented
 alternatives in `.env.example` — switching is configuration, not code.
 
 The adapter keeps the assistant message exactly as returned (including provider-specific fields
@@ -30,8 +30,11 @@ Temperature 0.2: answers must follow tool results, not be creative.
 ## Consequences
 + Zero cost; any evaluator can get a key in a minute, or run fully offline with Ollama.
 + Provider lock-in avoided: one adapter, three documented providers selected by configuration.
-− `-latest` alias trades reproducibility for availability (pinned versions get retired);
-  transcripts record the model actually served. Pin a version in `.env` for stable runs.
+− Pinned model, because the `gemini-flash-latest` alias returned 403 for a new free-tier key
+  (2026-11-02) and `gemini-3.5-flash` returned 503 under load. Pinned versions get retired, so
+  `LLM_MODEL` stays configurable; transcripts record the model actually served.
+− Free-tier calls occasionally fail with 403/503; the SDK retries 429/5xx, and a failed turn is
+  not persisted so it can be resent.
 − Free tiers have rate limits and, for Gemini, data-usage terms: fine for fictional data, not
   for real customers — production would use a paid tier or a self-hosted model.
 − Which providers were actually exercised end-to-end is stated in the README ("Verification").
