@@ -38,7 +38,19 @@ uv sync
    ```
 
    Prefer Groq or a fully local Ollama model? Uncomment the matching block in `.env.example` —
-   it is only configuration.
+   it is only configuration. Several providers can be registered with **automatic fallback**
+   (if one fails, the next answers) and managed from the terminal admin panel:
+
+   ```bash
+   uv run emporio-admin list                  # providers in fallback order (keys masked)
+   uv run emporio-admin test                  # health check of every enabled provider
+   uv run emporio-admin add ollama --base-url http://localhost:11434/v1 \
+       --model qwen3:4b --api-key ollama --timeout 300
+   uv run emporio-admin set ollama --model qwen3:8b    # switch model
+   uv run emporio-admin move ollama 1 | disable NAME | enable NAME | remove NAME
+   ```
+
+   `uv run emporio-chat --provider NAME` forces a single provider for one run.
 
 2. **Build the store data** from the original files (dry-run first, then apply):
 
@@ -102,6 +114,7 @@ Full reasoning, alternatives and trade-offs are in the ADRs ([index](docs/adr/RE
 | Data treatment | Immutable sources → **reproducible SQLite build** with checks, dry-run by default — [ADR-0004](docs/adr/0004-data-treatment.md) | Evaluators see the original data; anomalies are reported, never silently "fixed"; indexed queries scale past the 65-product CSV. |
 | Persistence | **SQLite sessions** (resumable), bounded history window — [ADR-0005](docs/adr/0005-conversation-persistence.md) | Multi-turn flows (identify → ask) and asynchronous customer service; audit trail of hand-offs. |
 | Interface | **Terminal chat** + transcript recorder — [ADR-0006](docs/adr/0006-interface.md) | Focus on the agent; zero UI dependencies; API/WhatsApp would be another thin adapter. |
+| Provider fallback | **Numbered providers in `.env`**, tried in order per request; terminal admin panel `emporio-admin` — [ADR-0007](docs/adr/0007-provider-fallback-and-admin.md) | No single point of failure (rate limits, outages, a local model that does not fit); switching models is one command; secrets stay in `.env`. |
 
 ### Prompt strategy
 
@@ -167,8 +180,18 @@ applying the 7/30/90-day rules, and out-of-scope requests plus opening hours.
 - `ruff check` and `ruff format --check` clean.
 - Fresh-clone run of the README steps: `uv sync` → `prepare_data.py` → `--apply` →
   `emporio-chat`.
-- End-to-end with a real model: see the "Model" line in each transcript header for the model
-  actually served. Groq and Ollama are supported by configuration but were not exercised.
+- Provider registry, fallback order and the admin panel's `.env` editing are covered by
+  `tests/test_providers.py` with fake models (no network); `emporio-admin add/set/list` were
+  also run directly against a real `.env`.
+- End-to-end with a real model on the owner's machine (Apple M1, 8 GB RAM, Ollama 0.40):
+  - **Ollama `qwen3:8b` failed:** the 5 GB model did not fit the free memory (30/37 layers on
+    the GPU, no swap); Ollama aborted with `timed out waiting for llama-server to start`, and
+    the agent's former fixed 60 s timeout cancelled each load attempt. Not used.
+  - **Ollama `qwen3:4b`** loads fully on the GPU (3.2 GB, ~16 tokens/s, ~40 s for the first
+    tool call with thinking on). It is configured as the provider (timeout 300 s), but the
+    example conversations have **not yet been re-recorded with it**; the transcripts'
+    "Model served" line shows which model produced each one.
+  - Gemini and Groq are supported by configuration but were not exercised.
 
 ---
 
@@ -195,7 +218,8 @@ applying the 7/30/90-day rules, and out-of-scope requests plus opening hours.
    assertions on tool calls (right tool, right arguments) and on the answer (amounts match tool
    output, promo shown with original + %, no invented contact), plus an LLM-as-judge for tone.
 2. **FastAPI endpoint + WhatsApp webhook** as thin adapters over `build_application`; PostgreSQL
-   behind the same repositories for concurrent sessions.
+   behind the same repositories for concurrent sessions. A web version of the provider admin
+   panel would be another thin adapter over `providers.py`.
 3. **Real shipping quotes** (Correios/Jadlog APIs by CEP) and stock reservation in the cart.
 4. **Stronger identification** (one-time code via WhatsApp/e-mail) and LGPD tooling: retention
    window, erasure on request, PII redaction in logs.
