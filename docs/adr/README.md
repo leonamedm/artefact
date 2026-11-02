@@ -26,3 +26,4 @@ new ADR instead.
 | [0004](0004-data-treatment.md) | Data treatment — immutable sources, reproducible generated store | Accepted |
 | [0005](0005-conversation-persistence.md) | Conversation persistence — SQLite sessions | Accepted |
 | [0006](0006-interface.md) | Interface — terminal chat | Accepted |
+| [0007](0007-provider-fallback-and-admin.md) | Several LLM providers with automatic fallback, terminal admin panel | Accepted |

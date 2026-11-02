@@ -6,7 +6,7 @@
 interfaces/cli.py ──► agent/loop.py ──► agent/tools.py ──► services/* ──► repositories/* ──► var/emporio.db (read-only)
    (I/O only)         (LLM ⇄ tools)     (validate, format)   (rules)        (SQL only)       var/policies.json
                            │
-                           └──► agent/llm.py ──► any OpenAI-compatible endpoint (Gemini / Groq / Ollama)
+                           └──► agent/llm.py ──► provider chain with fallback (ADR-0007) ──► OpenAI-compatible endpoints (Gemini / Groq / Ollama)
 
 tools/prepare_data.py ──► ingest/* : data/ (immutable) ──► checks ──► var/ (generated, git-ignored)
 ```

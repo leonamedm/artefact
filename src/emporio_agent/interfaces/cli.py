@@ -3,6 +3,7 @@
 uv run emporio-chat                 # new conversation
 uv run emporio-chat --session ID    # resume a saved conversation
 uv run emporio-chat --debug         # also print tool calls
+uv run emporio-chat --provider 2    # use only that provider (name or number), no fallback
 """
 
 from __future__ import annotations
@@ -14,10 +15,11 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 
-from emporio_agent.agent.llm import LLMError, OpenAICompatibleChatModel
+from emporio_agent.agent.llm import LLMError, build_chat_model
 from emporio_agent.app import build_application
 from emporio_agent.clock import Clock, FixedClock, SystemClock
-from emporio_agent.config import PROJECT_ROOT, VAR_DIR, LLMSettings
+from emporio_agent.config import PROJECT_ROOT, VAR_DIR
+from emporio_agent.providers import load_chain
 from emporio_agent.repositories.db import CatalogNotBuiltError
 
 EXIT_WORDS = {"sair", "exit", "quit", "tchau"}
@@ -32,13 +34,17 @@ def main(argv: list[str] | None = None) -> int:
         type=datetime.fromisoformat,
         help="simulate the current date/time (ISO), e.g. 2026-11-03T10:00",
     )
+    parser.add_argument(
+        "--provider",
+        help="use only this LLM provider (name or number from `emporio-admin list`)",
+    )
     args = parser.parse_args(argv)
 
     load_dotenv(PROJECT_ROOT / ".env")
     clock: Clock = FixedClock(args.now) if args.now else SystemClock()
     try:
-        settings = LLMSettings.from_env()
-        app = build_application(VAR_DIR, OpenAICompatibleChatModel(settings), clock)
+        model = build_chat_model(load_chain(args.provider))
+        app = build_application(VAR_DIR, model, clock)
     except (RuntimeError, CatalogNotBuiltError) as exc:
         print(f"Erro de configuração: {exc}", file=sys.stderr)
         return 2

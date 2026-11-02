@@ -259,6 +259,16 @@ def build_tools(ctx: ToolContext) -> ToolRegistry:
             result["note"] = (
                 "No matching instruments in the current catalog. Say so; never invent products."
             )
+        offset = int(args.get("offset", 0) or 0)
+        remaining = page.total - offset - len(page.items)
+        if remaining > 0:
+            # Stated explicitly: small models present a truncated page as the full answer
+            # (recorded example 01 listed 8 of 12 guitars as "the" options under R$ 1.000).
+            result["more_results"] = (
+                f"Showing {len(page.items)} of {page.total}; {remaining} more match. Tell the "
+                f"customer this is a partial list and offer the rest (call again with "
+                f"offset={offset + len(page.items)}) or a narrower search."
+            )
         return result
 
     def get_product(args: dict[str, Any]) -> dict[str, Any]:

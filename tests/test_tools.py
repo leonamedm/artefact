@@ -28,6 +28,15 @@ def test_numeric_strings_are_coerced(tools):
     assert result["total_matches"] > 0
 
 
+def test_partial_search_page_is_flagged(tools):
+    # 12 guitars cost up to R$ 1.000 (real data); the default page holds 8.
+    first = run(tools, "search_products", category="Violões", max_price=1000)
+    assert (first["total_matches"], first["returned"]) == (12, 8)
+    assert "4 more match" in first["more_results"] and "offset=8" in first["more_results"]
+    rest = run(tools, "search_products", category="Violões", max_price=1000, offset=8)
+    assert rest["returned"] == 4 and "more_results" not in rest
+
+
 def test_get_product_by_name_formats_money(tools):
     result = run(tools, "get_product", name="Takamine GD20")
     assert result["price"] == "R$ 2.199,00"

@@ -33,25 +33,18 @@ DEFAULT_LLM_BASE_URL = "https://generativelanguage.googleapis.com/v1beta/openai/
 DEFAULT_LLM_MODEL = "gemini-flash-latest"
 
 
+# Seconds per model request. Hosted APIs answer in seconds; small local models on modest
+# hardware can take a minute or more per tool round, so Ollama entries usually raise it.
+DEFAULT_LLM_TIMEOUT = 60.0
+
+
 @dataclass(frozen=True)
 class LLMSettings:
+    """One provider endpoint. Loaded from `.env` by `emporio_agent.providers` (ADR-0007)."""
+
     base_url: str
     api_key: str
     model: str
     temperature: float
-
-    @classmethod
-    def from_env(cls) -> LLMSettings:
-        api_key = os.environ.get("LLM_API_KEY", "").strip()
-        if not api_key:
-            raise RuntimeError(
-                "LLM_API_KEY is not set. Copy .env.example to .env and fill it in "
-                "(for a local Ollama server any non-empty value works)."
-            )
-        return cls(
-            base_url=os.environ.get("LLM_BASE_URL", DEFAULT_LLM_BASE_URL).strip(),
-            api_key=api_key,
-            model=os.environ.get("LLM_MODEL", DEFAULT_LLM_MODEL).strip(),
-            # Low temperature: answers must stick to tool results, not be creative.
-            temperature=float(os.environ.get("LLM_TEMPERATURE", "0.2")),
-        )
+    timeout: float = DEFAULT_LLM_TIMEOUT
+    name: str = "default"
